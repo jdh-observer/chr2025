@@ -138,7 +138,7 @@ fig.update_layout(
 fig.show()
 ```
 
- ```{code} python
+ ```python
 # SPARQL Query
 
 g2 = Graph()
