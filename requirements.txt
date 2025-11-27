@@ -6,4 +6,4 @@ matplotlib
 plotly
 anywidget
 numpy
-sparqlwrapper
+qwikidata
