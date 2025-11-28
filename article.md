@@ -201,10 +201,12 @@ def get_results(endpoint_url, query):
 
 
 results = get_results(endpoint_url, query)
+```
 
-#for result in results["results"]["bindings"]:
- #   print(result)
-results
+```python
+for result in results["results"]["bindings"][:5]:
+    print(result)
+
 ```
 
 ## Map
@@ -254,8 +256,13 @@ for _, row in df.iterrows():
 
 # Save and display
 m.save('letters_map.html')
-m
 
+
+```
+
+```python
+from IPython.display import IFrame
+IFrame("letters_map.html", width="100%", height="600px")
 ```
 
 ```python
