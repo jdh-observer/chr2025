@@ -8,3 +8,4 @@ anywidget
 numpy
 sparqlwrapper
 pandas
+folium
