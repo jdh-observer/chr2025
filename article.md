@@ -13,22 +13,6 @@ jupyter:
     name: python3
 ---
 
-<!-- #region -->
-## Birds ?
- 
-```{image} img/bird.jpeg
-:width: 200px
-:align: left
-```
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Iuvaret mei, eam simul partem In nominati mel possit definiebas latine id? partem ipsum. Has corrumpit autem at convenire. deleniti Has rationibus ea at dolor deleniti latine ipsum. Copiosae sit simul amet, unum mel simul convenire. eam sit ea senserit possit Vis. Choro no, id? choro corrumpit ea, deleniti cu. definiebas In ea, id? sit at. Qui! has convenire. ea no, Vis in tincidunt! ea, tincidunt! ipsum dolor unum efficiendi,. Qui! ipsum iuvaret autem instructior unum vidisse deleniti vim amet, ea, nominati senserit Has.
-
-
-## Birds
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Iuvaret mei, eam simul partem In nominati mel possit definiebas latine id? partem ipsum. Has corrumpit autem at convenire. deleniti Has rationibus ea at dolor deleniti latine ipsum. Copiosae sit simul amet, unum mel simul convenire. eam sit ea senserit possit Vis. Choro no, id? choro corrumpit ea, deleniti cu. definiebas In ea, id? sit at. Qui! has convenire. ea no, Vis in tincidunt! ea, tincidunt! ipsum dolor unum efficiendi,. Qui! ipsum iuvaret autem instructior unum vidisse deleniti vim amet, ea, nominati senserit Has.
-
-
 ## Packages and data
 
 ### Packages list
@@ -46,11 +30,6 @@ pip install session_info rdflib networkx matplotlib
 ```
 
 Pour charger les librairies :
-<!-- #endregion -->
-
-```python
-import session_info
-```
 
 ```python
 from rdflib import Graph, Literal, RDF, URIRef
@@ -218,7 +197,7 @@ from folium.plugins import MarkerCluster
 import re
 
 # Parse the SPARQL bindings
-bindings = results["results"]["bindings"]
+bindings = results["results"]["bindings"][:5]
 
 data = []
 for result in bindings:
@@ -261,12 +240,17 @@ m.save('letters_map.html')
 ```
 
 ```python
-from IPython.display import IFrame
-IFrame("letters_map.html", width="100%", height="600px")
+m
 ```
 
 ```python
-session_info.show()
-```
+import requests
+from IPython.display import display, HTML
 
-## Session information
+#url = "https://raw.githubusercontent.com/jdh-observer/chr2025/refs/heads/main/letters_map.html"
+#r = requests.get(url)
+#r.raise_for_status()
+#html = r.text
+
+#display(HTML(html))
+```
