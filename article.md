@@ -279,7 +279,7 @@ jupyter:
 <!-- #region -->
 ## Birds ?
  
-```{image} img/bird.jpeg
+```
 :width: 200px
 :align: left
 ```
@@ -542,7 +542,7 @@ jupyter:
 <!-- #region -->
 ## Birds ?
  
-```{image} img/bird.jpeg
+```
 :width: 200px
 :align: left
 ```
