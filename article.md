@@ -78,6 +78,100 @@ nx.draw(ug)
 ```
 
 ```python
+from rdflib import Graph, Literal, RDF, URIRef
+from rdflib.namespace import FOAF, XSD
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Create a Graph
+g = Graph()
+
+# Create an RDF URI node to use as the subject for multiple triples
+donna = URIRef("http://example.org/donna")
+
+# Add triples using store's add() method.
+g.add((donna, RDF.type, FOAF.Person))
+g.add((donna, FOAF.nick, Literal("donna", lang="en")))
+g.add((donna, FOAF.name, Literal("Donna Fales")))
+g.add((donna, FOAF.mbox, URIRef("mailto:donna@example.org")))
+
+# Add another person
+ed = URIRef("http://example.org/edward")
+
+# Add triples using store's add() method.
+g.add((ed, RDF.type, FOAF.Person))
+g.add((ed, FOAF.nick, Literal("ed", datatype=XSD.string)))
+g.add((ed, FOAF.name, Literal("Edward Scissorhands")))
+g.add((ed, FOAF.mbox, Literal("e.scissorhands@example.org", datatype=XSD.anyURI)))
+
+# Bind the FOAF namespace to a prefix for more readable output
+g.bind("foaf", FOAF)
+
+# Convert to NetworkX graph
+ug = rdflib_to_networkx_graph(g)
+
+# Create a layout for better visualization
+pos = nx.spring_layout(ug, k=2, iterations=50)
+
+# Create figure with larger size
+plt.figure(figsize=(14, 10))
+
+# Draw nodes
+nx.draw_networkx_nodes(ug, pos, node_color='lightblue', node_size=3000, alpha=0.9)
+
+# Draw edges
+nx.draw_networkx_edges(ug, pos, edge_color='gray', arrows=True, arrowsize=20, 
+                        arrowstyle='->', connectionstyle='arc3,rad=0.1')
+
+# Create readable labels for nodes
+node_labels = {}
+for node in ug.nodes():
+    # Shorten URIs and literals for display
+    label = str(node)
+    if "example.org/" in label:
+        label = label.split("/")[-1].replace(">", "")
+    elif "foaf/0.1/" in label:
+        label = "foaf:" + label.split("/")[-1].replace(">", "")
+    elif "XMLSchema#" in label:
+        label = label.split("#")[-1].replace(">", "")
+    elif label.startswith("mailto:"):
+        label = label.replace("mailto:", "")
+    # Truncate long literals
+    if len(label) > 30:
+        label = label[:27] + "..."
+    node_labels[node] = label
+
+# Draw node labels
+nx.draw_networkx_labels(ug, pos, node_labels, font_size=10, font_weight='bold')
+
+# Create edge labels (predicates)
+edge_labels = {}
+for u, v, data in ug.edges(data=True):
+    if 'label' in data:
+        label = str(data['label'])
+    else:
+        label = ""
+    # Shorten predicates
+    if "foaf/0.1/" in label:
+        label = "foaf:" + label.split("/")[-1].replace(">", "")
+    elif "syntax-ns#" in label:
+        label = label.split("#")[-1].replace(">", "")
+    edge_labels[(u, v)] = label
+
+# Draw edge labels
+nx.draw_networkx_edge_labels(ug, pos, edge_labels, font_size=8, 
+                              font_color='red', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+
+plt.title("RDF Graph Visualization with Labels", fontsize=16, fontweight='bold')
+plt.axis('off')
+plt.tight_layout()
+plt.savefig('rdf_graph_visualization.png', dpi=150, bbox_inches='tight')
+print("Graph saved as 'rdf_graph_visualization.png'")
+plt.show()
+```
+
+```python
 import plotly.graph_objects as go
 import numpy as np
 
@@ -252,6 +346,117 @@ m
 #r.raise_for_status()
 #html = r.text
 #display(HTML(html))
+```
+
+```python
+# import Graph & Namespace
+
+from rdflib import Graph, Namespace
+from rdflib.namespace import NamespaceManager
+
+# Wikidata namespace
+WD = Namespace("http://www.wikidata.org/entity/")
+
+# define graph to be crawled in
+g2 = Graph()
+g2.bind("wd", WD)
+
+# define query about Mona Lisa QID
+qres = g2.query(
+  """
+  SELECT ?o
+  WHERE {
+    SERVICE <https://query.wikidata.org/sparql> {
+      wd:Q12418 rdfs:label ?o .
+    }
+  }
+  LIMIT 10
+  """
+)
+
+```
+
+```python
+# print results nicely
+for row in qres:
+   print("%s is a label of " % row)
+
+```
+
+## Querying factgrid
+
+```python
+# test with Factgrid namespace
+FG_WD = Namespace("https://database.factgrid.de/entity/")
+FG_WDT = Namespace("https://database.factgrid.de/prop/direct/")
+# define graph to be crawled in
+g3 = Graph()
+g3.bind("fg_wd", FG_WD)
+g3.bind("fg_wdt", FG_WDT)
+# define query for keywords
+qres = g3.query(
+   """
+SELECT DISTINCT ?p (COALESCE(?p_labell,'') AS
+?p_label)
+WHERE {
+    SERVICE <https://database.factgrid.de/sparql> {
+?p fg_wdt:P1132 fg_wd:Q960698.
+OPTIONAL {
+?p rdfs:label ?p_labell.
+FILTER(lang(?p_labell) IN
+('en'))
+}
+}
+}
+ORDER BY ?p
+   """
+)
+
+```
+
+```python
+# print results nicely
+for row in qres:
+   print(row.asdict()['p_label'])
+
+```
+
+### Projects
+
+```python
+FG_P = Namespace("https://database.factgrid.de/prop/")
+FG_PS = Namespace("https://database.factgrid.de/prop/statement/")
+g4 = Graph()
+g4.bind("fg_wd", FG_WD)
+g4.bind("fg_wdt", FG_WDT)
+g4.bind("fg_p", FG_P)
+g4.bind("fg_ps", FG_PS)
+# define query for projects
+qres = g4.query(
+   """
+SELECT DISTINCT ?project (COALESCE(?project_labell,'') AS
+?project_label)
+WHERE {
+    SERVICE <https://database.factgrid.de/sparql> {
+?project fg_wdt:P2 fg_wd:Q11295.
+OPTIONAL {
+?project rdfs:label ?project_labell.
+FILTER(lang(?project_labell) IN
+('en'))
+}
+}
+}
+ORDER BY ?project
+   """
+)
+
+```
+
+```python
+# print results nicely
+for row in qres:
+   print(row.asdict()['project_label'])
+
 ```
 
 ```python
