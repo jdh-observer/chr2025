@@ -1,6 +1,6 @@
 # Journal of Digital History Author's Repository
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/eliselavy/chr2025/main?filepath=article.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jdh-observer/chr2025/main?filepath=article.ipynb)
 
 This repository serves as a resource for authors submitting articles to the [Journal of Digital History](https://journalofdigitalhistory.org).
 It contains a Jupyter notebook that provides an example and a simple structure that can be used to write articles for the journal.
