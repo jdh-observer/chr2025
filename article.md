@@ -13,29 +13,67 @@ jupyter:
     name: python3
 ---
 
-## Packages and data
+---
+kernelspec:
+  display_name: Python 3 (ipykernel)
+  language: python
+  name: python3
+---
 
-### Packages list
 
-The following python packages are used in this notebook :
+# Introduction and Workshop Scope : "RDF Dump"
 
-- `rdflib` : 
-- `networkx` : 
-- `matplotlib` : 
+The workshop offers a playground notebook to create or to explore RDF dumps. If you are unfamiliar with linked data, we recommend reading the [corresponding lesson of "Programming Historian"](https://doi.org/10.46430/phen0068).
 
-You can install the needeed packages with the following code :
+This workshop offers a brief practical introduction of how to browse into RDF dumps or how to build RDF graphs for database exploration and open research purposes. Basic know how to query or build LOD data, basic analysis for exploration, here within python language paradigm, and editorial issues should be in the hands of trainees.
+This workshop is split in five parts, plus further reading :
+1. A first part introduces python packages to be used within the general framework of jupyter notebooks. Some ressource gives further tutorial to work on your local machine.
+2. A second part gives python recepies to browse into wikidata and Factgrid wikibase dump to collect general and particular data from the graph. 
+3. A third part help in building RDF graph with python `rdflib` packages and fonctions.
+4. A fourth part uses SPARQL queries results to display them on maps or timelines, leading to first results as examples. 
+5. A last part aims at producing a scientific publication within the Journal of Digital History editorial technical stack.
+
+## From data collection to scientific publication
+
+![Ressources to install Jupyter Notebook framework on your local machine](https://mise-en-pratique-5e5223.gricad-pages.univ-grenoble-alpes.fr/jupyter.html)
+
+```{iframe} https://blog.factgrid.de/
+:align: center
+:label: factgrid-blog
+Factgrid blog [https://blog.factgrid.de/](https://blog.factgrid.de/)
+```
+```{figure} ./img/jdh.png
+:align: center
+:label: jdh
+Narrative, hermeneutical and code layers of the Journal of Digital History, image captured from the JdH article [https://doi.org/10.1515/JDH-2023-0018](https://doi.org/10.1515/JDH-2023-0018)
+```
+
+# Python libraries to perform SPARQL queries
+
+## Python packages
+
+- `rdflib` : working with RDF data
+- `networkx` : managing graphs
+- `matplotlib` : plotting
+- `plotly` : plotting as wel
+
+## A "reproducible" process ?
+
+- `session_info` : retrieve software version numbers
+
+## Install packages
+
+In your terminal, you can install these packages with `pip` :
 
 ```{code} shell
-pip install session_info rdflib networkx matplotlib
+pip install session_info rdflib networkx matplotlib plotly
 ```
 
-Pour charger les librairies :
+# Creating a knowledge graph 
 
-```python
-import session_info
-```
+## Create a couple of triples with Python and `rdflib`
 
-```python
+```{code-cell} python
 from rdflib import Graph, Literal, RDF, URIRef
 # rdflib knows about quite a few popular namespaces, like W3C ontologies, schema.org etc.
 from rdflib.namespace import FOAF , XSD
@@ -63,12 +101,20 @@ g.add((ed, FOAF.mbox, Literal("e.scissorhands@example.org", datatype=XSD.anyURI)
 
 # Bind the FOAF namespace to a prefix for more readable output
 g.bind("foaf", FOAF)
+```
 
+## Representations of the knowledge graph
+
+### In the `n3` serialization format
+
+```{code-cell} python
 # print all the data in the Notation3 format
 print(g.serialize(format='n3'))
 ```
 
-```python
+### As a network graph
+
+```{code-cell} python
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -77,101 +123,9 @@ ug = rdflib_to_networkx_graph(g)
 nx.draw(ug)
 ```
 
-```python
-from rdflib import Graph, Literal, RDF, URIRef
-from rdflib.namespace import FOAF, XSD
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
-import networkx as nx
-import matplotlib.pyplot as plt
+# Figures with `plotly.graph_objects`
 
-# Create a Graph
-g = Graph()
-
-# Create an RDF URI node to use as the subject for multiple triples
-donna = URIRef("http://example.org/donna")
-
-# Add triples using store's add() method.
-g.add((donna, RDF.type, FOAF.Person))
-g.add((donna, FOAF.nick, Literal("donna", lang="en")))
-g.add((donna, FOAF.name, Literal("Donna Fales")))
-g.add((donna, FOAF.mbox, URIRef("mailto:donna@example.org")))
-
-# Add another person
-ed = URIRef("http://example.org/edward")
-
-# Add triples using store's add() method.
-g.add((ed, RDF.type, FOAF.Person))
-g.add((ed, FOAF.nick, Literal("ed", datatype=XSD.string)))
-g.add((ed, FOAF.name, Literal("Edward Scissorhands")))
-g.add((ed, FOAF.mbox, Literal("e.scissorhands@example.org", datatype=XSD.anyURI)))
-
-# Bind the FOAF namespace to a prefix for more readable output
-g.bind("foaf", FOAF)
-
-# Convert to NetworkX graph
-ug = rdflib_to_networkx_graph(g)
-
-# Create a layout for better visualization
-pos = nx.spring_layout(ug, k=2, iterations=50)
-
-# Create figure with larger size
-plt.figure(figsize=(14, 10))
-
-# Draw nodes
-nx.draw_networkx_nodes(ug, pos, node_color='lightblue', node_size=3000, alpha=0.9)
-
-# Draw edges
-nx.draw_networkx_edges(ug, pos, edge_color='gray', arrows=True, arrowsize=20, 
-                        arrowstyle='->', connectionstyle='arc3,rad=0.1')
-
-# Create readable labels for nodes
-node_labels = {}
-for node in ug.nodes():
-    # Shorten URIs and literals for display
-    label = str(node)
-    if "example.org/" in label:
-        label = label.split("/")[-1].replace(">", "")
-    elif "foaf/0.1/" in label:
-        label = "foaf:" + label.split("/")[-1].replace(">", "")
-    elif "XMLSchema#" in label:
-        label = label.split("#")[-1].replace(">", "")
-    elif label.startswith("mailto:"):
-        label = label.replace("mailto:", "")
-    # Truncate long literals
-    if len(label) > 30:
-        label = label[:27] + "..."
-    node_labels[node] = label
-
-# Draw node labels
-nx.draw_networkx_labels(ug, pos, node_labels, font_size=10, font_weight='bold')
-
-# Create edge labels (predicates)
-edge_labels = {}
-for u, v, data in ug.edges(data=True):
-    if 'label' in data:
-        label = str(data['label'])
-    else:
-        label = ""
-    # Shorten predicates
-    if "foaf/0.1/" in label:
-        label = "foaf:" + label.split("/")[-1].replace(">", "")
-    elif "syntax-ns#" in label:
-        label = label.split("#")[-1].replace(">", "")
-    edge_labels[(u, v)] = label
-
-# Draw edge labels
-nx.draw_networkx_edge_labels(ug, pos, edge_labels, font_size=8, 
-                              font_color='red', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
-
-plt.title("RDF Graph Visualization with Labels", fontsize=16, fontweight='bold')
-plt.axis('off')
-plt.tight_layout()
-plt.savefig('rdf_graph_visualization.png', dpi=150, bbox_inches='tight')
-print("Graph saved as 'rdf_graph_visualization.png'")
-plt.show()
-```
-
-```python
+```{code-cell} python
 import plotly.graph_objects as go
 import numpy as np
 
@@ -215,140 +169,22 @@ fig.update_layout(
 
 fig.show()
 ```
+# Before browsing FactGrid wikibase dump
 
-# SPARQL Query
+## Namespaces and prefixes
 
+Many Widely used namespaces are predefined in `rdflib`, e.g. `FOAF`, `DublinCore`, `Schema`, or `XSD`.
 
-From here:
-https://database.factgrid.de/wiki/FactGrid:Sample_queries
-
-by taking the example: 
-https://database.factgrid.de/query/#%23defaultView%3AMap%0ASELECT%20%3Fitem%20%3FitemLabel%20%3FOrt%20%3FOrtLabel%20%3FGeokoordinaten%20WHERE%20%7B%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cen%22.%20%7D%0A%20%20%3Fitem%20wdt%3AP2%20wd%3AQ10671.%0A%20%20%3Fitem%20wdt%3AP95%20%3FOrt.%0A%20%20%3FOrt%20wdt%3AP48%20%3FGeokoordinaten.%0A%20%20%3Fitem%20wdt%3AP97%20wd%3AQ10677.%0A%7D
-
-```python
-from IPython.display import Image, display
-metadata={
-    "jdh": {
-        "module": "object",
-        "object": {
-            "type":"image",
-            "source": ["Diachronic evolution of agency"]
-        }
-    }
-}
-display(Image("./media/factgrid_code.png"), metadata=metadata)
+```{code-cell} python
+for prefix,ns in g.namespaces():
+   print(prefix,ns)
 ```
 
-```python
-sparql_query = """
-SELECT ?item ?itemLabel ?Ort ?OrtLabel ?Geokoordinaten 
-WHERE {
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-  ?item wdt:P2 wd:Q10671.
-  ?item wdt:P95 ?Ort.
-  ?Ort wdt:P48 ?Geokoordinaten.
-  ?item wdt:P97 wd:Q10677.
-}
-"""
-```
+However, we see no `wikibase`, nor `wikidata` or `dbpedia` namespaces. These have to be declared and bound to specific prefixes.
 
-```python
-import sys
-from SPARQLWrapper import SPARQLWrapper, JSON
+## Querying Wikidata
 
-endpoint_url = "https://database.factgrid.de/sparql"
-
-query = """#defaultView:Map
-SELECT ?item ?itemLabel ?Ort ?OrtLabel ?Geokoordinaten WHERE {
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-  ?item wdt:P2 wd:Q10671.
-  ?item wdt:P95 ?Ort.
-  ?Ort wdt:P48 ?Geokoordinaten.
-  ?item wdt:P97 wd:Q10677.
-}"""
-
-
-def get_results(endpoint_url, query):
-    user_agent = "WDQS-example Python/%s.%s" % (sys.version_info[0], sys.version_info[1])
-    # TODO adjust user agent; see https://w.wiki/CX6
-    sparql = SPARQLWrapper(endpoint_url, agent=user_agent)
-    sparql.setQuery(query)
-    sparql.setReturnFormat(JSON)
-    return sparql.query().convert()
-
-
-results = get_results(endpoint_url, query)
-```
-
-```python
-for result in results["results"]["bindings"][5]:
-    print(result)
-
-```
-
-## Map
-
-```python
-import pandas as pd
-import folium
-from folium.plugins import MarkerCluster
-import re
-
-# Parse the SPARQL bindings
-bindings = results["results"]["bindings"]
-
-data = []
-for result in bindings:
-    wkt = result['Geokoordinaten']['value']
-    
-    # Extract lon, lat from WKT Point format
-    match = re.search(r'Point\(([\d.]+)\s+([\d.]+)\)', wkt)
-    if match:
-        lon, lat = float(match.group(1)), float(match.group(2))
-
-        data.append({
-            'item': result['item']['value'],
-            'itemLabel': result['itemLabel']['value'],
-            'location': result['OrtLabel']['value'],
-            'latitude': lat,
-            'longitude': lon
-        })
-
-df = pd.DataFrame(data)
-
-# Create the map centered on the mean coordinates
-map_center = [df['latitude'].mean(), df['longitude'].mean()]
-m = folium.Map(location=map_center, zoom_start=6)
-
-# Add marker cluster
-marker_cluster = MarkerCluster().add_to(m)
-
-# Add markers
-for _, row in df.iterrows():
-    folium.Marker(
-        [row['latitude'], row['longitude']],
-        popup=f"<b>{row['location']}</b><br>{row['itemLabel']}",
-        tooltip=row['location']
-    ).add_to(marker_cluster)
-
-# Save and display
-m.save('letters_map.html')
-m
-
-```
-
-```python
-#import requests
-#from IPython.display import display, HTML
-
-#url = "https://raw.githubusercontent.com/jdh-observer/chr2025/refs/heads/main/letters_map.html"
-#r = requests.get(url)
-#r.raise_for_status()
-#html = r.text
-#display(HTML(html))
-```
-
-```python
+ ```{code-cell} python
 # import Graph & Namespace
 
 from rdflib import Graph, Namespace
@@ -363,29 +199,28 @@ g2.bind("wd", WD)
 
 # define query about Mona Lisa QID
 qres = g2.query(
-  """
-  SELECT ?o
-  WHERE {
-    SERVICE <https://query.wikidata.org/sparql> {
-      wd:Q12418 rdfs:label ?o .
-    }
-  }
-  LIMIT 10
-  """
+   """
+   SELECT ?o
+   WHERE {
+     SERVICE <https://query.wikidata.org/sparql> {
+       wd:Q12418 rdfs:label ?o .
+     }
+   }
+   LIMIT 10
+   """
 )
-
 ```
-
-```python
+```{code-cell} python
 # print results nicely
 for row in qres:
-   print("%s is a label of " % row)
-
+   print("wikidata identifier Q12418 <has label> %s" %row)
 ```
 
-## Querying factgrid
+# Querying FactGrid
 
-```python
+## 1.0 - Collecting keywords
+
+```{code-cell} python
 # test with Factgrid namespace
 FG_WD = Namespace("https://database.factgrid.de/entity/")
 FG_WDT = Namespace("https://database.factgrid.de/prop/direct/")
@@ -411,19 +246,19 @@ FILTER(lang(?p_labell) IN
 ORDER BY ?p
    """
 )
-
 ```
 
-```python
+```{code-cell} python
 # print results nicely
 for row in qres:
    print(row.asdict()['p_label'])
-
 ```
 
-### Projects
+## TODO : classes of keywords ?
 
-```python
+## 2.0 - Collecting Factgrid projects names etc.
+
+```{code-cell} python
 FG_P = Namespace("https://database.factgrid.de/prop/")
 FG_PS = Namespace("https://database.factgrid.de/prop/statement/")
 g4 = Graph()
@@ -434,31 +269,254 @@ g4.bind("fg_ps", FG_PS)
 # define query for projects
 qres = g4.query(
    """
-SELECT DISTINCT ?project (COALESCE(?project_labell,'') AS
-?project_label)
+SELECT ?author_labell ?project_labell ?date ?localisation_labell ?coordinates
 WHERE {
     SERVICE <https://database.factgrid.de/sparql> {
 ?project fg_wdt:P2 fg_wd:Q11295.
-OPTIONAL {
-?project rdfs:label ?project_labell.
-FILTER(lang(?project_labell) IN
-('en'))
-}
+   OPTIONAL {
+      ?project rdfs:label ?project_labell.
+      FILTER(lang(?project_labell) IN ('en'))
+   }
+   OPTIONAL  {
+      ?project fg_wdt:P49 ?date .
+   }
+   OPTIONAL {
+      ?project fg_p:P297/fg_ps:P297 ?localisation .
+      ?localisation rdfs:label ?localisation_labell.
+      FILTER(lang(?localisation_labell) IN ('en'))
+      ?localisation fg_wdt:P48 ?coordinates
+    }
+   OPTIONAL {
+      ?project fg_wdt:P21 ?author .
+      ?author rdfs:label ?author_labell
+      FILTER(lang(?author_labell) IN ('en'))
+          }
 }
 }
 ORDER BY ?project
    """
 )
-
 ```
 
-```python
-# print results nicely
+## [TOOL] Create a function to convert from SPARQLResult to Dataframe
+
+```{code-cell} python
+from pandas import DataFrame
+from rdflib.plugins.sparql.processor import SPARQLResult
+
+def sparql_results_to_df(results: SPARQLResult) -> DataFrame:
+    """
+    Export results from an rdflib SPARQL query into a `pandas.DataFrame`,
+    using Python types. See https://github.com/RDFLib/rdflib/issues/1179.
+    """
+    return DataFrame(
+        data=([None if x is None else x.toPython() for x in row] for row in results),
+        columns=[str(x) for x in results.vars],
+    )
+```
+
+```{code-cell} python
+sparql_results_to_df(qres)
+```
+## 2.0 TODO : map of location of projects (proportional circles ? heat map ?)
+
+## 2.1 Querying the number of statements per projects
+
+```{code-cell} python
+FG_WIKIBASE = Namespace("http://wikiba.se/ontology#")
+g5 = Graph()
+g5.bind("fg_wd", FG_WD)
+g5.bind("fg_wdt", FG_WDT)
+g5.bind("fg_wikibase", FG_WIKIBASE)
+# define query for projects
+qres = g5.query(
+   """
+SELECT ?project_labell ?date ?stmtcount
+WHERE {
+    SERVICE <https://database.factgrid.de/sparql> {
+        ?project fg_wdt:P2 fg_wd:Q11295 .
+	?project fg_wdt:P49 ?date .
+	?project fg_wikibase:statements ?stmtcount .
+      	?project rdfs:label ?project_labell.
+      	FILTER(lang(?project_labell) IN ('en'))
+   }
+}
+ORDER BY DESC (?stmtcount)
+LIMIT 100
+   """
+)
+```
+```{code-cell} python
+sparql_results_to_df(qres)
+```
+## Build query for project as domain and as range
+
+```{code-cell} python
+g8 = Graph()
+g8.bind("fg_wd", FG_WD)
+g8.bind("fg_wikibase", FG_WIKIBASE)
+# define query for projects
+qres = g8.query(
+   """
+SELECT ?s ?wd ?o
+WHERE {
+  SERVICE <https://database.factgrid.de/sparql> {
+    {
+	  BIND (fg_wd:Q467586 as ?s)
+	  ?s ?p ?o.
+	  ?wd fg_wikibase:claim ?p.
+	}
+	UNION
+    {
+	  BIND (fg_wd:Q467586 as ?o)
+	  ?s ?p ?o.
+	  ?wd fg_wikibase:claim ?p .
+	}
+}}
+"""
+)
+
+# Due of rdflib's limitation
 for row in qres:
-   print(row.asdict()['project_label'])
+    g8.add(row)
 
+print(g8.serialize(format='n3'))
 ```
 
-```python
+## Draw resulting graph
 
+```{code-cell} python
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+import networkx as nx
+import matplotlib.pyplot as plt
+
+ug8 = rdflib_to_networkx_graph(g8)
+nx.draw(ug8)
+```
+
+
+
+## 2.2 Querying for the list of statements for a given project
+
+A view of the graph's depth at the level of a project description.
+
+```{code-cell} python
+g6 = Graph()
+g6.bind("fg_wd", FG_WD)
+g6.bind("fg_wikibase", FG_WIKIBASE)
+# define query for statements of a choosen project
+qres = g6.query(
+   """
+SELECT ?project ?wd_labell ?ps_ ?ps_labell ?wdpq ?wdpq_labell ?pq_ ?pq_labell
+WHERE {
+    SERVICE <https://database.factgrid.de/sparql> {
+  VALUES (?project) {(fg_wd:Q467586)}
+
+  ?project ?p ?statement .
+  ?statement ?ps ?ps_ .
+  OPTIONAL { ?ps_ rdfs:label ?ps_labell.
+  FILTER(lang(?ps_labell) IN ('en'))}
+  ?wd fg_wikibase:claim ?p .
+  ?wd fg_wikibase:statementProperty ?ps .
+  OPTIONAL {?wd rdfs:label ?wd_labell.
+  FILTER(lang(?wd_labell) IN ('en'))}
+
+  OPTIONAL {
+  ?statement ?pq ?pq_ .
+  ?wdpq fg_wikibase:qualifier ?pq .
+  ?wdpq rdfs:label ?wdpq_labell.
+  FILTER(lang(?wdpq_labell) IN ('en'))
+  ?pq_ rdfs:label ?pq_labell.
+  FILTER(lang(?pq_labell) IN ('en'))
+  }
+  }
+}
+ ORDER BY ?wd ?ps_
+   """
+)
+```
+
+```{code-cell} python
+sparql_results_to_df(qres)
+```
+
+## Draw resulting graph
+
+## TODO : network of information / agents surrounding a project
+
+## 2.3 Querying for topics of Factgrid projects
+
+```{code-cell} python
+g7 = Graph()
+g7.bind("fg_wd", FG_WD)
+g7.bind("fg_wdt", FG_WDT)
+# define query for projects
+qres = g7.query(
+   """
+SELECT ?topic_labell ?project_labell ?date
+WHERE {
+    SERVICE <https://database.factgrid.de/sparql> {
+        ?project fg_wdt:P2 fg_wd:Q11295 .
+	?project fg_wdt:P49 ?date .
+	?project fg_wdt:P243 ?topic .
+      	?project rdfs:label ?project_labell.
+      	FILTER(lang(?project_labell) IN ('en'))
+      	?topic rdfs:label ?topic_labell.
+      	FILTER(lang(?topic_labell) IN ('en'))
+   }
+}
+ORDER BY ?topic_labell
+   """
+)
+```
+```{code-cell} python
+sparql_results_to_df(qres)
+```
+
+## Draw timeline
+
+# 3.0 Collecting sub-graph of a given project
+
+## build query
+
+```{code-cell} python
+g9 = Graph()
+g9.bind("fg_wd", FG_WD)
+g9.bind("fg_wikibase", FG_WIKIBASE)
+# define query for projects
+qres = g9.query(
+   """
+SELECT ?s ?wd ?o
+WHERE {
+  SERVICE <https://database.factgrid.de/sparql> {
+    {
+	  BIND (fg_wd:Q467586 as ?s)
+	  ?s ?p ?o.
+	  ?wd fg_wikibase:directClaim ?p.
+	}
+	UNION
+    {
+	  BIND (fg_wd:Q467586 as ?o)
+	  ?s ?p ?o.
+	  ?wd fg_wikibase:directClaim ?p .
+	}
+}}
+"""
+)
+
+# Due of rdflib's limitation
+for row in qres:
+    g9.add(row)
+
+print(g9.serialize(format='n3'))
+```
+## draw a network ?
+
+## Store rdf triples
+
+# Session information
+
+```{code-cell} python
+import session_info
+session_info.show()
 ```
