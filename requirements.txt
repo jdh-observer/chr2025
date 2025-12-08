@@ -1,4 +1,3 @@
-jupyterlab-citation-manager==1.0.0
 rdflib
 session-info
 networkx
@@ -6,6 +5,9 @@ matplotlib
 plotly
 anywidget
 numpy
-sparqlwrapper
 pandas
+scipy
+ipysigma
+geopandas
 folium
+mapclassify
