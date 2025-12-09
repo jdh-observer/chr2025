@@ -532,10 +532,10 @@
   <rdf:Description rdf:about="https://database.factgrid.de/entity/Q458034">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
-  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q456826">
+  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q456831">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
-  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q456831">
+  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q456826">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
   <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457172">
@@ -2278,10 +2278,10 @@
   <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457892">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
-  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457122">
+  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457179">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
-  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457179">
+  <rdf:Description rdf:about="https://database.factgrid.de/entity/Q457122">
     <fg_wd:P131 rdf:resource="https://database.factgrid.de/entity/Q467586"/>
   </rdf:Description>
   <rdf:Description rdf:about="https://database.factgrid.de/entity/Q456850">
