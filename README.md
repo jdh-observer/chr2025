@@ -1,15 +1,55 @@
-# Journal of Digital History Author's Repository
+# From MyST Markdown to a JDH article
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jdh-observer/chr2025/main?filepath=article.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jdh-observer/chr2025/main?filepath=index.ipynb)
 
-This repository serves as a resource for authors submitting articles to the [Journal of Digital History](https://journalofdigitalhistory.org).
-It contains a Jupyter notebook that provides an example and a simple structure that can be used to write articles for the journal.
-The repository also includes a `preflight`github action that can be automatically triggered on commit, but by default, it is set to `workflow_dispatch`and actionable from the `actions` page on GitHub.
-The preflight action generates a report within the repository that contains information about the adherence of the article to the submission guidelines.
+The starting file index.md comes from the repository:
+https://gitlab.huma-num.fr/gt-notebook/workshop/chr-2025/atelier/-/blob/main/index.md?ref_type=heads
+
+This file is converted and enriched to produce a proper .ipynb suitable for a JDH article.
+
+
+## Steps
+
+### Conversion
+
+Convert the original MyST Markdown file into a notebook:
+
+- From md to ipynb:
+
+```code
+mystnb-to-jupyter index.md index.ipynb
+```
+
+You need to install:
+```code
+pip install myst-nb
+```
+
+=> produces index.ipynb
+
+- From ipynb to md:
+
+```code
+jupytext index.ipynb --to myst 
+```
+
+```code
+pip install jupytext
+```
+
+### Enrichment for JDH
+
+The notebook is then revised (structure, narrative, code cells, outputs) to follow JDH article guidelines.
+➜ final version: index-jdh.ipynb
+
+### Execution to generate the ouput
+
+### Control in the preview
+
 
 ## Contents
 
-`article.ipynb` - This Jupyter notebook provides an example and a simple structure that authors can use to write articles for the Journal of Digital History. You can rename it according to your article name.
+`index.ipynb` - The Jupyter notebook generated from `index.md` enriched from metadata and tag to fit with the guidelines of the JDH
 
 `.github/workflows/github-actions-preflight.yml` - This workflow file contains the preflight action that can be triggered automatically on commit or manually using the workflow_dispatch event to check that the article respects the Journal guidelines.
 
